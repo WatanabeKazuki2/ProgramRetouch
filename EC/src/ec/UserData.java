@@ -1,6 +1,7 @@
 package ec;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import beans.BuyDataBeans;
 import beans.UserDataBeans;
 import dao.UserDAO;
 
@@ -40,6 +42,13 @@ public class UserData extends HttpServlet {
 
 			request.setAttribute("validationMessage", validationMessage);
 			request.setAttribute("udb", udb);
+
+
+			//購入履歴を表示
+			List<BuyDataBeans> buyHistoryList = UserDAO.buyHistoryAll(userId);
+
+			// リクエストスコープにユーザ一覧情報をセット
+			request.setAttribute("buyHistoryList", buyHistoryList);
 
 			request.getRequestDispatcher(EcHelper.USER_DATA_PAGE).forward(request, response);
 

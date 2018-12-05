@@ -5,8 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import base.DBManager;
+import beans.BuyDataBeans;
 import beans.UserDataBeans;
 import ec.EcHelper;
 
@@ -222,4 +227,97 @@ public class UserDAO {
 		return isOverlap;
 	}
 
+	//購入履歴用
+	public static List<BuyDataBeans> buyHistoryAll(int userId) throws SQLException, ParseException{
+		List<BuyDataBeans> buyHistoryList = new ArrayList<BuyDataBeans>();
+		PreparedStatement st = null;
+		Connection con = DBManager.getConnection();
+		try {
+
+			//購入履歴のテーブルを全件取得の準備
+			st = con.prepareStatement("SELECT \n" +
+					"t_buy.user_id\n" +
+					",t_buy.total_price\n" +
+					",t_buy.create_date\n" +
+					",m_delivery_method.name\n" +
+					"FROM\n" +
+					"t_buy INNER JOIN m_delivery_method\n" +
+					"ON \n" +
+					"t_buy.delivery_method_id = m_delivery_method.id\n"
+					+ "WHERE\n"
+					+ "user_id = ?\n"
+					+ "ORDER BY \n" +
+					"t_buy.create_date DESC;")	;
+			st.setInt(1,userId);
+			ResultSet rs = st.executeQuery();
+
+			while(rs.next()) {
+				userId = rs.getInt("t_buy.user_id");
+				int totalPrice = rs.getInt("t_buy.total_price");
+				String deliveryMethodName = rs.getString("m_delivery_method.name");
+				Date createDate = rs.getTimestamp("t_buy.create_date");
+				BuyDataBeans buyDatabeans = new BuyDataBeans(userId,totalPrice,deliveryMethodName,createDate);
+				buyHistoryList.add(buyDatabeans);
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+			return null;
+		} finally {
+			// データベース切断
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+		}
+
+
+		return buyHistoryList;
+	}
+	//購入履歴詳細用
+	@SuppressWarnings({ "null", "finally" })
+	public static BuyDataBeans buyHistory(int userId) {
+		Connection con = DBManager.getConnection();
+		PreparedStatement st = null;
+		try {
+			con.prepareStatement("SELECT\n" +
+					"t_buy.user_id,\n" +
+					"t_buy.total_price,\n" +
+					"t_buy.create_date,\n" +
+					"m_delivery_method.name\n" +
+					"FROM\n" +
+					"t_buy INNER JOIN m_delivery_method\n" +
+					"ON\n" +
+					"t_buy.delivery_method_id = m_delivery_method.id\n" +
+					"WHERE\n" +
+					"t_buy.id = ? ; ");
+			st.setInt(1, userId);
+			ResultSet rs = st.executeQuery();
+
+			userId = rs.getInt("t_buy.user_id");
+			int totalPrice = rs.getInt("t_buy.total_price");
+			String deliveryMethodName = rs.getString("m_delivery_method.name");
+			Date createDate = rs.getTimestamp("t_buy.create_date");
+			return new BuyDataBeans(userId,totalPrice,deliveryMethodName,createDate);
+
+		}catch(SQLException e){
+			e.printStackTrace();
+			return null;
+		} finally {
+			// データベース切断
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+		return null;
+
+	}
+}
 }

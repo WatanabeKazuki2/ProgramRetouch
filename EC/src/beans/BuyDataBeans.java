@@ -1,6 +1,7 @@
 package beans;
 
 import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -21,6 +22,16 @@ public class BuyDataBeans  implements Serializable {
 	private int deliveryMethodPrice;
 
 
+	public BuyDataBeans( int userId, int totalPrice, String deliveryMethodName,  Date createDate) throws ParseException {
+		// TODO 自動生成されたコンストラクター・スタブ
+		this.userId = userId;
+		this.totalPrice = totalPrice;
+		this.deliveryMethodName = deliveryMethodName;
+		this.buyDate = createDate;
+	}
+	public BuyDataBeans() {
+		// TODO 自動生成されたコンストラクター・スタブ
+	}
 	public int getId() {
 		return id;
 	}
