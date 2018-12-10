@@ -64,8 +64,9 @@
 							<tbody>
 
 									<c:forEach var = "buyHistory" items = "${buyHistoryList}">
+										<input type = "hidden" name = "id" id = "${buyHistory.id}">
 								<tr>
-										<td class="center"><a href="UserBuyHistoryDetail?buy_id=1" class="btn-floating btn waves-effect waves-light "> <i class="material-icons">details</i></a></td>
+										<td class="center"><a href="UserBuyHistoryDetail?id=${buyHistory.id}" class="btn-floating btn waves-effect waves-light "> <i class="material-icons">details</i></a></td>
 										<td class="center">${buyHistory.formatDate}</td>
 										<td class="center">${buyHistory.deliveryMethodName}</td>
 										<td class="center">${buyHistory.totalPrice}円</td>

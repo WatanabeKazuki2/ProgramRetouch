@@ -22,11 +22,13 @@ public class BuyDataBeans  implements Serializable {
 	private int deliveryMethodPrice;
 
 
-	public BuyDataBeans( int userId, int totalPrice, String deliveryMethodName,  Date createDate) throws ParseException {
+	public BuyDataBeans(int id, int userId, int totalPrice, String deliveryMethodName,int deliveryMethodPrice,  Date createDate) throws ParseException {
 		// TODO 自動生成されたコンストラクター・スタブ
+		this.id = id;
 		this.userId = userId;
 		this.totalPrice = totalPrice;
 		this.deliveryMethodName = deliveryMethodName;
+		this.deliveryMethodPrice = deliveryMethodPrice;
 		this.buyDate = createDate;
 	}
 	public BuyDataBeans() {

@@ -236,10 +236,12 @@ public class UserDAO {
 
 			//購入履歴のテーブルを全件取得の準備
 			st = con.prepareStatement("SELECT \n" +
-					"t_buy.user_id\n" +
+					"t_buy.id\n" +
+					",t_buy.user_id\n" +
 					",t_buy.total_price\n" +
 					",t_buy.create_date\n" +
 					",m_delivery_method.name\n" +
+					",m_delivery_method.price\n" +
 					"FROM\n" +
 					"t_buy INNER JOIN m_delivery_method\n" +
 					"ON \n" +
@@ -252,11 +254,13 @@ public class UserDAO {
 			ResultSet rs = st.executeQuery();
 
 			while(rs.next()) {
+				int id = rs.getInt("t_buy.id");
 				userId = rs.getInt("t_buy.user_id");
 				int totalPrice = rs.getInt("t_buy.total_price");
 				String deliveryMethodName = rs.getString("m_delivery_method.name");
+				int deliveryMethodPrice = rs.getInt("m_delivery_method.price");
 				Date createDate = rs.getTimestamp("t_buy.create_date");
-				BuyDataBeans buyDatabeans = new BuyDataBeans(userId,totalPrice,deliveryMethodName,createDate);
+				BuyDataBeans buyDatabeans = new BuyDataBeans(id,userId,totalPrice,deliveryMethodName,deliveryMethodPrice,createDate);
 				buyHistoryList.add(buyDatabeans);
 			}
 		}catch(SQLException e){
@@ -278,30 +282,40 @@ public class UserDAO {
 		return buyHistoryList;
 	}
 	//購入履歴詳細用
-	@SuppressWarnings({ "null", "finally" })
-	public static BuyDataBeans buyHistory(int userId) {
+	public static BuyDataBeans buyHistory(int id,int userId) throws SQLException,ParseException{
 		Connection con = DBManager.getConnection();
 		PreparedStatement st = null;
+		BuyDataBeans btb = new BuyDataBeans();
 		try {
-			con.prepareStatement("SELECT\n" +
+			st=con.prepareStatement("SELECT\n" +
+					"t_buy.id,\n" +
 					"t_buy.user_id,\n" +
 					"t_buy.total_price,\n" +
 					"t_buy.create_date,\n" +
-					"m_delivery_method.name\n" +
+					"m_delivery_method.name,"+
+					"m_delivery_method.price\n" +
 					"FROM\n" +
 					"t_buy INNER JOIN m_delivery_method\n" +
 					"ON\n" +
 					"t_buy.delivery_method_id = m_delivery_method.id\n" +
 					"WHERE\n" +
-					"t_buy.id = ? ; ");
+					"t_buy.user_id = ? AND t_buy.id = ?; ");
 			st.setInt(1, userId);
+			st.setInt(2, id);
 			ResultSet rs = st.executeQuery();
 
-			userId = rs.getInt("t_buy.user_id");
-			int totalPrice = rs.getInt("t_buy.total_price");
-			String deliveryMethodName = rs.getString("m_delivery_method.name");
-			Date createDate = rs.getTimestamp("t_buy.create_date");
-			return new BuyDataBeans(userId,totalPrice,deliveryMethodName,createDate);
+			while (rs.next()) {
+
+			btb.setId(rs.getInt("t_buy.id"));
+			btb.setUserId(rs.getInt("t_buy.user_id"));
+			btb.setTotalPrice(rs.getInt("t_buy.total_price"));
+			btb.setDeliveryMethodName(rs.getString("m_delivery_method.name"));
+			btb.setDeliveryMethodPrice(rs.getInt("m_delivery_method.price"));
+			btb.setBuyDate(rs.getTimestamp("t_buy.create_date"));
+
+			}
+			return btb;
+
 
 		}catch(SQLException e){
 			e.printStackTrace();
@@ -316,8 +330,7 @@ public class UserDAO {
 					return null;
 				}
 			}
-		return null;
-
+		}
 	}
-}
+
 }

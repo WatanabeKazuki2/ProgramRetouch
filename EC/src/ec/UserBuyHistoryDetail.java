@@ -1,6 +1,7 @@
 package ec;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -10,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import beans.BuyDataBeans;
+import beans.ItemDataBeans;
+import dao.BuyDetailDAO;
 import dao.UserDAO;
 
 /**
@@ -28,8 +31,18 @@ public class UserBuyHistoryDetail extends HttpServlet {
 		try {
 			// ログイン時に取得したユーザーIDをセッションから取得
 			int userId = (int) session.getAttribute("userId");
-			BuyDataBeans userHistory= UserDAO.buyHistory(userId);
+			//userdate.jspからidの値を取得
+			int id = Integer.parseInt(request.getParameter("id"));
+
+			//userIdとidから指定した履歴情報を取得
+			BuyDataBeans userHistory= UserDAO.buyHistory(id,userId);
+			//リクエストスコープにセット
 			request.setAttribute("userHistory", userHistory);
+
+			//idから品物のデータを取得
+			ArrayList<ItemDataBeans> itemHistoryList = BuyDetailDAO.getItemDataBeansListByBuyId(id);
+			//リクエストスコープにセット
+			request.setAttribute("itemHistoryList", itemHistoryList);
 
 
 
